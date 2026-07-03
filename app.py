@@ -1,7 +1,9 @@
 import streamlit as st
 from utils.loader import load_file
 from utils.validator import validate_file
-from utils.metadat import get_metadata
+from utils.metadata import get_metadata
+from llm.model import gemini_model
+from llm.promts import analysis_prompt
 st.set_page_config(layout="wide")
 
 st.title("AI Assistent V1")
@@ -10,7 +12,7 @@ user_file = st.file_uploader("Choose File (CSV) or Excel only", type=["csv","xls
 
 if user_file is not None:
     try:
-        df,display_file_type,file_name = load_file(user_file)
+        df,filetype,file_name = load_file(user_file)
     except Exception as e:
          st.exception(e)
          st.stop()
@@ -33,7 +35,7 @@ if user_file is not None:
                 st.metric("File Name",file_name)
 
                 #File Type
-                st.metric("File Type",display_file_type)
+                st.metric("File Type",filetype)
 
                 #Total Rows
                 st.metric("Total Rows", metadata["rows"])
@@ -101,3 +103,44 @@ if user_file is not None:
         memory_container  = st.container(horizontal=True)
         with memory_container:
              st.metric("Memory Use",metadata["memory_usage"])
+
+
+    st.session_state["df"] =df
+    st.session_state["display_file_type"]=filetype
+    st.session_state["file_name"]=file_name
+    st.session_state["metadata"]=metadata
+
+
+    st.divider()
+    st.subheader("Ask Questions About Your Data")
+    user_input = st.chat_input("Ask a question about your data...")
+    if "messages" not in st.session_state:
+        st.session_state.messages=[]
+
+    for message  in st.session_state.messages:
+        with st.chat_message(message["role"]):
+            st.markdown(message["content"])
+
+    if user_input:
+        with st.chat_message(name="user"):
+            st.markdown(user_input)
+            st.session_state.messages.append({"role": "user", "content": user_input})
+
+        meta_data = st.session_state["metadata"]
+        prompt=analysis_prompt.invoke(
+            {
+                "file_name": st.session_state["file_name"],
+                "file_type":st.session_state["display_file_type"],
+                "rows":meta_data["rows"],
+                "columns":meta_data["column_count"],
+                "memory_usage":meta_data["memory_usage"],
+                "missing_cells":meta_data["missing_count"],
+                "column_names": ", ".join(meta_data["column_names"]),
+                "question": user_input,
+            }
+            
+        )
+        response = gemini_model.invoke(prompt)
+        with st.chat_message(name="assistant"):
+            st.markdown(response.content)
+            st.session_state.messages.append({"role": "assistant", "content": response.content})
