@@ -151,7 +151,7 @@ if user_file is not None:
         elif operation == "min":
             result = analyzer.get_min(df, column)
 
-        elif operation == "sum":
+        elif operation == "sum":    
             result = analyzer.get_sum(df, column)
 
         elif operation == "average":
