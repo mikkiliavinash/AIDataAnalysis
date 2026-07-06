@@ -3,7 +3,11 @@ from utils.loader import load_file
 from utils.validator import validate_file
 from utils.metadata import get_metadata
 from llm.model import gemini_model
-from llm.promts import analysis_prompt
+from llm.promts import analysis_prompt 
+from data_analysis import analyzer
+from llm.intent_classifier import classify_intent
+
+
 st.set_page_config(layout="wide")
 
 st.title("AI Assistent V1")
@@ -110,10 +114,14 @@ if user_file is not None:
     st.session_state["file_name"]=file_name
     st.session_state["metadata"]=metadata
 
-
     st.divider()
+
+
     st.subheader("Ask Questions About Your Data")
+
+
     user_input = st.chat_input("Ask a question about your data...")
+
     if "messages" not in st.session_state:
         st.session_state.messages=[]
 
@@ -127,20 +135,35 @@ if user_file is not None:
             st.session_state.messages.append({"role": "user", "content": user_input})
 
         meta_data = st.session_state["metadata"]
-        prompt=analysis_prompt.invoke(
-            {
-                "file_name": st.session_state["file_name"],
-                "file_type":st.session_state["display_file_type"],
-                "rows":meta_data["rows"],
-                "columns":meta_data["column_count"],
-                "memory_usage":meta_data["memory_usage"],
-                "missing_cells":meta_data["missing_count"],
-                "column_names": ", ".join(meta_data["column_names"]),
-                "question": user_input,
-            }
-            
+
+
+        user_intent = classify_intent(
+            question= user_input,
+            columns=metadata["column_names"]
         )
-        response = gemini_model.invoke(prompt)
+
+        operation = user_intent.operation.lower()
+        column = user_intent.column
+
+        if operation == "max":
+            result = analyzer.get_max(df, column)
+
+        elif operation == "min":
+            result = analyzer.get_min(df, column)
+
+        elif operation == "sum":
+            result = analyzer.get_sum(df, column)
+
+        elif operation == "average":
+            result = analyzer.get_average(df, column)
+
+        else:
+            result = "Unsupported operation"
+
+        print(user_intent.operation)
+        print(user_intent.column)
+        
+        #response = gemini_model.invoke(prompt)
         with st.chat_message(name="assistant"):
-            st.markdown(response.content)
-            st.session_state.messages.append({"role": "assistant", "content": response.content})
+            st.markdown(result)
+            st.session_state.messages.append({"role": "assistant", "content": result})

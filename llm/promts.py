@@ -1,4 +1,3 @@
-
 from langchain_core.prompts import ChatPromptTemplate
 
 analysis_prompt = ChatPromptTemplate.from_template(
@@ -22,8 +21,6 @@ Memory Usage: {memory_usage}
 Missing Cells: {missing_cells}
 
 column_names:{column_names}
-
-
 
 
 User Question:
