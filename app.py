@@ -3,9 +3,11 @@ from utils.loader import load_file
 from utils.validator import validate_file
 from utils.metadata import get_metadata
 from llm.model import gemini_model
-from llm.promts import analysis_prompt 
+from llm.prompts.analysis_prompt import analysis_prompt 
 from data_analysis import analyzer
 from llm.intent_classifier import classify_intent
+from llm.prompts.explanation_prompt import explanation_prompt
+from data_analysis.analyzer import execute_operation
 
 
 st.set_page_config(layout="wide")
@@ -137,33 +139,24 @@ if user_file is not None:
         meta_data = st.session_state["metadata"]
 
 
-        user_intent = classify_intent(
-            question= user_input,
-            columns=metadata["column_names"]
-        )
+        user_intent = classify_intent(question=user_input, columns=metadata["column_names"])
+
+        result = execute_operation(df, user_intent)
 
         operation = user_intent.operation.lower()
         column = user_intent.column
 
-        if operation == "max":
-            result = analyzer.get_max(df, column)
+        prompt  = explanation_prompt.invoke(
+                    {
+                        "operation": operation,
+                        "column": column,
+                        "result":result,
+                        "question" :user_input
+                    }
+                )
+            
+        response = gemini_model.invoke(prompt)
 
-        elif operation == "min":
-            result = analyzer.get_min(df, column)
-
-        elif operation == "sum":    
-            result = analyzer.get_sum(df, column)
-
-        elif operation == "average":
-            result = analyzer.get_average(df, column)
-
-        else:
-            result = "Unsupported operation"
-
-        print(user_intent.operation)
-        print(user_intent.column)
-        
-        #response = gemini_model.invoke(prompt)
         with st.chat_message(name="assistant"):
-            st.markdown(result)
-            st.session_state.messages.append({"role": "assistant", "content": result})
+            st.markdown(response.content)
+            st.session_state.messages.append({"role": "assistant", "content": response.content})

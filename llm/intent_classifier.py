@@ -1,23 +1,6 @@
 from llm.model import gemini_model
-from langchain_core.prompts import ChatPromptTemplate
 from llm.schemas import Intent
-
-intent_prompt = ChatPromptTemplate.from_template(
-    """
-You are an AI intent classifier.
-
-Your job is NOT to answer the question.
-
-Your job is to identify:
-
-1. The operation
-2. The column
-
-Available Columns:{columns}
-
-User Question:{question}
-"""
-)
+from llm.prompts.intent_prompt import intent_prompt
 
 structured_model = gemini_model.with_structured_output(Intent)
 
@@ -31,5 +14,7 @@ def classify_intent(question, columns):
 
     intent = structured_model.invoke(prompt)
 
-    return intent
+    print(type(intent))
+    print(intent)
 
+    return intent

@@ -1,17 +1,22 @@
+def execute_operation(df, intent):
+    operation = intent.operation.lower()
+    column = intent.column
+    try:
+        if operation == "max":
+            result = df[column].max()
+            return result
+        
+        if operation == "min":
+            result = df[column].min()
+            return result
+        
+        if operation == "sum":
+            result = df[column].sum()
+            return result
 
+        if operation == "average":
+            result = df[column].mean()
+            return result
 
-def get_max(df, column):
-    return df[column].max()
-
-
-def get_min(df, column):
-    return df[column].min()
-
-
-def get_sum(df, column):
-    return df[column].sum()
-
-
-def get_average(df, column):
-    return df[column].mean()
-
+    except Exception as e:
+        return f"Error{e}"
