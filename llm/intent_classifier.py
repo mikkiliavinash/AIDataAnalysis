@@ -8,13 +8,10 @@ def classify_intent(question, columns):
     prompt = intent_prompt.invoke(
         {
             "question": question,
-            "columns": ", ".join(columns)
+            "columns": ", ".join(columns),
         }
     )
 
     intent = structured_model.invoke(prompt)
-
-    print(type(intent))
-    print(intent)
 
     return intent

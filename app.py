@@ -139,12 +139,14 @@ if user_file is not None:
         meta_data = st.session_state["metadata"]
 
 
-        user_intent = classify_intent(question=user_input, columns=metadata["column_names"])
+        user_intent = classify_intent(question=user_input, columns=metadata["column_names"] )
 
         result = execute_operation(df, user_intent)
 
         operation = user_intent.operation.lower()
         column = user_intent.column
+
+        print(user_intent)
 
         prompt  = explanation_prompt.invoke(
                     {
