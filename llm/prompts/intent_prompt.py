@@ -11,11 +11,12 @@ Extract the following information:
 2. column
 3. filter_column
 4. filter_value
+5. group_by 
 
 Rules:
 
 - operation should be one of:
-  MAX, MIN, SUM, AVERAGE
+  MAX,MIN,SUM,AVERAGE,COUNT
 
 - column must be one of the available columns.
 
@@ -25,6 +26,11 @@ Rules:
 
 - If there is no filter, return null for
   filter_column and filter_value.
+                                                 
+If the user asks to group the results (for example "by FLAG" or "by MONTH"),
+  extract the group_by column.
+
+- Otherwise return null for group_by.
 
 Available Columns:
 {columns}

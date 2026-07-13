@@ -2,7 +2,7 @@ import streamlit as st
 from utils.loader import load_file
 from utils.validator import validate_file
 from utils.metadata import get_metadata
-from llm.model import gemini_model
+from llm.model import llm
 from llm.prompts.analysis_prompt import analysis_prompt 
 from data_analysis import analyzer
 from llm.intent_classifier import classify_intent
@@ -17,8 +17,18 @@ st.title("AI Assistent V1")
 user_file = st.file_uploader("Choose File (CSV) or Excel only", type=["csv","xlsx"])
 
 if user_file is not None:
+
     try:
         df,filetype,file_name = load_file(user_file)
+        
+        print(df.groupby("FLAG")["AMOUNT"].sum())
+
+        print(df.groupby("FLAG").size())
+
+        print(df["FLAG"].unique())
+
+        print(df.dtypes)
+        
     except Exception as e:
          st.exception(e)
          st.stop()
@@ -110,14 +120,12 @@ if user_file is not None:
         with memory_container:
              st.metric("Memory Use",metadata["memory_usage"])
 
-
     st.session_state["df"] =df
     st.session_state["display_file_type"]=filetype
     st.session_state["file_name"]=file_name
     st.session_state["metadata"]=metadata
 
     st.divider()
-
 
     st.subheader("Ask Questions About Your Data")
 
@@ -138,12 +146,12 @@ if user_file is not None:
 
         meta_data = st.session_state["metadata"]
 
-
         user_intent = classify_intent(question=user_input, columns=metadata["column_names"] )
 
         result = execute_operation(df, user_intent)
 
         operation = user_intent.operation.lower()
+
         column = user_intent.column
 
         print(user_intent)
@@ -156,8 +164,14 @@ if user_file is not None:
                         "question" :user_input
                     }
                 )
-            
-        response = gemini_model.invoke(prompt)
+        import pandas as pd
+
+        result = execute_operation(df, user_intent)
+
+#        if isinstance(result, pd.DataFrame):
+ #           st.dataframe(result)        
+        
+        response = llm.invoke(prompt)
 
         with st.chat_message(name="assistant"):
             st.markdown(response.content)
