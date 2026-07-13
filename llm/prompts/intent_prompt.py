@@ -1,41 +1,100 @@
 from langchain_core.prompts import ChatPromptTemplate
 
-intent_prompt = ChatPromptTemplate.from_template("""
-You are an AI intent classifier.
+intent_prompt = ChatPromptTemplate.from_template("""You are an intent classifier.
 
-Your job is NOT to answer the question.
-
-Extract the following information:
+Extract:
 
 1. operation
 2. column
-3. filter_column
-4. filter_value
-5. group_by 
+3. filters
+4. group_by
+5. sort_by
+6. sort_order
+7. top_n
+8. bottom_n
 
 Rules:
 
-- operation should be one of:
-  MAX,MIN,SUM,AVERAGE,COUNT
+Aggregation operations:
 
-- column must be one of the available columns.
+SUM
+AVERAGE
+MAX
+MIN
+COUNT
 
-- If the user applies a filter, extract:
-    filter_column
-    filter_value
+Only return an operation if the user asks for an aggregation.
 
-- If there is no filter, return null for
-  filter_column and filter_value.
-                                                 
-If the user asks to group the results (for example "by FLAG" or "by MONTH"),
-  extract the group_by column.
+Examples:
 
-- Otherwise return null for group_by.
+"What is the total amount?"
+operation = SUM
 
-Available Columns:
+"Average amount by FLAG"
+operation = AVERAGE
+
+"Count by FLAG"
+operation = COUNT
+
+----------------------------------
+
+Sorting:
+
+If the user asks to sort data,
+leave operation as null.
+
+Extract:
+
+sort_by
+sort_order
+
+Example:
+
+Sort HOA by AMOUNT ascending
+
+operation = null
+column = HOA
+sort_by = AMOUNT
+sort_order = ASC
+
+----------------------------------
+
+Top N
+
+Top 10 HOA by Amount
+
+operation = null
+column = HOA
+sort_by = AMOUNT
+sort_order = DESC
+top_n = 10
+
+----------------------------------
+
+Bottom N
+
+Lowest 5 HOA by Amount
+
+operation = null
+column = HOA
+sort_by = AMOUNT
+sort_order = ASC
+bottom_n = 5
+
+----------------------------------
+
+Filters
+
+Extract every filter.
+
+----------------------------------
+
+Available columns:
+
 {columns}
 
-User Question:
+Question:
+
 {question}
                                                                           
 """)

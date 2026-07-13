@@ -173,6 +173,33 @@ if user_file is not None:
         
         response = llm.invoke(prompt)
 
-        with st.chat_message(name="assistant"):
+        with st.chat_message("assistant"):
+            llm_result = result
+
+            
+
+            if isinstance(result, pd.DataFrame):
+
+                st.dataframe(result, hide_index=True)
+
+            elif isinstance(result, pd.Series):
+                st.dataframe(result.reset_index(), hide_index=True)
+                prompt = explanation_prompt.invoke(
+                    {
+                        "operation": operation,
+                        "column": column,
+                        "result": result,
+                        "question": user_input
+                        }
+                        )
+
+            response = llm.invoke(prompt)
+
             st.markdown(response.content)
-            st.session_state.messages.append({"role": "assistant", "content": response.content})
+
+        st.session_state.messages.append(
+            {
+                "role": "assistant",
+                "content": response.content
+            }
+        )
