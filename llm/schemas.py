@@ -1,5 +1,17 @@
 from pydantic import BaseModel
 
+class DateFilter(BaseModel):
+    column: str
+
+    operator: str
+    # EQUAL, BEFORE, AFTER, BETWEEN
+
+    value: str | None = None
+
+    start: str | None = None
+
+    end: str | None = None
+
 class Filter(BaseModel):
     column: str
     value: str
@@ -7,22 +19,20 @@ class Filter(BaseModel):
 
 class Intent(BaseModel):
 
-    # Aggregation operation
     operation: str | None = None
 
-    # Main column
     column: str | None = None
 
-    # Filters
     filters: list[Filter] | None = None
 
-    # Group By
+    date_filter: DateFilter | None = None
+
     group_by: list[str] | None = None
 
-    # Sorting
     sort_by: str | None = None
+
     sort_order: str | None = None
 
-    # Ranking
     top_n: int | None = None
+
     bottom_n: int | None = None

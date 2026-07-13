@@ -13,7 +13,6 @@ def classify_intent(question, columns):
     )
 
     intent = structured_model.invoke(prompt)
-
     print("=======================")
     print(intent)
 

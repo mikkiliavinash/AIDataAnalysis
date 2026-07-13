@@ -21,14 +21,6 @@ if user_file is not None:
     try:
         df,filetype,file_name = load_file(user_file)
         
-        print(df.groupby("FLAG")["AMOUNT"].sum())
-
-        print(df.groupby("FLAG").size())
-
-        print(df["FLAG"].unique())
-
-        print(df.dtypes)
-        
     except Exception as e:
          st.exception(e)
          st.stop()
