@@ -20,7 +20,7 @@ Operation:
 {operation}
 
 Column:
-{column}
+{columns}
 
 Result:
 {result}

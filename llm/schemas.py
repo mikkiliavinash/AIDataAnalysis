@@ -2,15 +2,11 @@ from pydantic import BaseModel
 
 class DateFilter(BaseModel):
     column: str
-
     operator: str
-    # EQUAL, BEFORE, AFTER, BETWEEN
-
     value: str | None = None
-
     start: str | None = None
-
     end: str | None = None
+
 
 class Filter(BaseModel):
     column: str
@@ -21,7 +17,7 @@ class Intent(BaseModel):
 
     operation: str | None = None
 
-    column: str | None = None
+    columns: list[str] | None = None
 
     filters: list[Filter] | None = None
 
@@ -36,3 +32,7 @@ class Intent(BaseModel):
     top_n: int | None = None
 
     bottom_n: int | None = None
+
+    visualization: bool | None = None
+    
+    visualization_type: str | None = None

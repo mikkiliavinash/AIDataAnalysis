@@ -2,7 +2,7 @@ import pandas as pd
 
 def execute_operation(df, intent):
     operation = intent.operation.lower()
-    column = intent.column
+    column = intent.columns
 
     working_df = df.copy()
 
@@ -16,12 +16,6 @@ def execute_operation(df, intent):
     bottom_n = intent.bottom_n
 
     date_filter = intent.date_filter
-    print("===== EXECUTE OPERATION =====")
-    print(intent)
-    print(intent.model_dump())
-    print("date_filter:", date_filter)
-    print("type:", type(date_filter))
-    print("bool:", bool(date_filter))
 
     try:
             
@@ -45,7 +39,9 @@ def execute_operation(df, intent):
             working_df[date_filter.column] = pd.to_datetime(working_df[date_filter.column])
 
             if date_filter.operator == "EQUAL":
+                 
                  value = pd.to_datetime(date_filter.value)
+
                  working_df = working_df[
                       (working_df[date_filter.column].dt.year == value.year) &
                       (working_df[date_filter.column].dt.month == value.month)]
@@ -78,9 +74,6 @@ def execute_operation(df, intent):
 
             if operation == "sum":
                 result = (working_df.groupby(group_by)[column].sum().reset_index())
-                temp = working_df.groupby(group_by)[column].sum()
-                print(type(temp))
-                print(type(temp.reset_index))
 
             elif operation == "average":
                 result = (working_df.groupby(group_by)[column].mean().reset_index())
@@ -102,9 +95,16 @@ def execute_operation(df, intent):
             # -----------------------------
             # No Group By
             # -----------------------------
+           
+            
+
             if operation == "sum":
-                result = working_df[column].sum()
+                results = {}
+                for col in column:
+                    results[col] = working_df[col].sum()
+                    result = pd.DataFrame([results])
                 return result
+                
 
             elif operation == "average":
                 result = working_df[column].mean()
