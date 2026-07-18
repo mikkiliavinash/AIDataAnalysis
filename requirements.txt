@@ -1,1 +1,9 @@
-ÿþ
+langchain
+langchain-core
+langchain-openai
+openai
+pandas
+python-dotenv
+streamlit
+openpyxl
+plotly
